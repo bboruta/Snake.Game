@@ -14,5 +14,11 @@ namespace Snake.Contract
             X = 0;
             Y = 0;
         }
+
+        public Food(int x, int y)
+        {
+            X = x;
+            Y = y;
+        }
     }
 }

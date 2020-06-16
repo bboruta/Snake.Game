@@ -8,7 +8,10 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="5.2.0" />
+    <PackageReference Include="Expression.Blend.Sdk" Version="1.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.5" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
+    <PackageReference Include="MicrosoftExpressionInteractions" Version="3.0.40218" />
   </ItemGroup>
 
   <ItemGroup>

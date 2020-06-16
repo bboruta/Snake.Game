@@ -3,13 +3,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:wi="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
         xmlns:local="clr-namespace:Snake.Game"
+        xmlns:myBehaviors="clr-namespace:Snake.Game.Behaviors"
         mc:Ignorable="d"
         Title="MainWindow" Height="480" Width="800">
+    <wi:Interaction.Behaviors>
+        <myBehaviors:KeyUpWithArgsBehavior
+                        KeyUpCommand="{Binding OnKeyDownCommand}"/>
+    </wi:Interaction.Behaviors>
     <Grid>
         <Border HorizontalAlignment="Left" Height="400" Margin="36,38,0,0" VerticalAlignment="Top" Width="400" Background="Gray">
-            <Image HorizontalAlignment="Left" Height="400" Margin="36,38,0,0" VerticalAlignment="Top" Width="400"/>
+            <Image HorizontalAlignment="Left" Height="{Binding GameAreaDimensionX}" Margin="36,38,0,0" VerticalAlignment="Top" Width="{Binding GameAreaDimension}" />
         </Border>
-
     </Grid>
 </Window>

@@ -10,6 +10,7 @@ namespace Snake.Game.Autofac
             builder.RegisterType<MainWindow>().SingleInstance();
             builder.RegisterType<MainViewModel>().SingleInstance();
             builder.RegisterType<KeyboardConfigurationProvider>().As<IKeyboardConfigurationProvider>();
+            builder.RegisterType<GameConfigurationProvider>().As<IGameConfigurationProvider>();
         }
 
         public void ConfigureApplication(IContainer container)
