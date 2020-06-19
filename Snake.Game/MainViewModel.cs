@@ -1,10 +1,8 @@
-﻿//using Snake.Contract;
-using Snake.Game.Helpers;
+﻿using Snake.Game.Helpers;
 using Snake.Game.Shapes;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -49,6 +47,11 @@ namespace Snake.Game
 
         private Dictionary<Key, SnakeDirection> _allowedMovementKeysMap;
 
+        private int _objectSizeX;
+        private int _objectSizeY;
+        private int _maxXPos;
+        private int _maxYPos;
+
         public MainViewModel(IKeyboardConfigurationProvider keyboardConfigurationProvider, IGameConfigurationProvider gameConfigurationProvider)
         {
             _keyboardConfigurationProvider = keyboardConfigurationProvider;
@@ -70,12 +73,17 @@ namespace Snake.Game
             OnKeyDownCommand = new RelayCommandGeneric<Key>(p => OnKeyDown(p), p => true);
 
 
-            //timer.Interval = TimeSpan.FromMilliseconds(1000 / gameConfigurationProvider.SnakeSpeed);
-            timer.Interval = TimeSpan.FromMilliseconds(10);
+            timer.Interval = TimeSpan.FromMilliseconds(1000 / gameConfigurationProvider.SnakeSpeed);
+            //timer.Interval = TimeSpan.FromMilliseconds(10);
             timer.Tick += OnTimerTick;
             timer.Start();
 
-            StartGame();
+            _objectSizeX = _gameConfigurationProvider.GameObjectSizeX;
+            _objectSizeY = _gameConfigurationProvider.GameObjectSizeY;
+            _maxXPos = GameAreaDimensionX / _objectSizeX;
+            _maxYPos = GameAreaDimensionY / _objectSizeY;
+
+        StartGame();
         }
 
         public ICommand OnKeyDownCommand { get; }
@@ -89,9 +97,8 @@ namespace Snake.Game
         private void StartGame()
         {
             _snake.Clear();
-            var initialPositionX = GameAreaDimensionX / 2;
-            var initialPositionY = GameAreaDimensionY / 2;
-            //var headGeometry = new Rectangle(initialPositionX, initialPositionY, _gameConfigurationProvider.GameObjectSizeX, _gameConfigurationProvider.GameObjectSizeY);
+            var initialPositionX = (GameAreaDimensionX / 2) / _objectSizeX * _objectSizeX;
+            var initialPositionY = (GameAreaDimensionY / 2) / _objectSizeY * _objectSizeY;
             var head = new SnakePart(initialPositionX, initialPositionY, _gameConfigurationProvider.GameObjectSizeX, _gameConfigurationProvider.GameObjectSizeY, Brushes.LightGreen);
             _snake.Add(head);
 
@@ -100,13 +107,12 @@ namespace Snake.Game
 
         private void GenerateFood()
         {
-            int maxPosX = GameAreaDimensionX / _gameConfigurationProvider.GameObjectSizeX;
-            int maxPosY = GameAreaDimensionY / _gameConfigurationProvider.GameObjectSizeY;
+            var foodPosXLogical = _random.Next(0, _maxXPos);
+            var foodPosYLogical = _random.Next(0, _maxYPos);
+            var foodPosXPhysical = foodPosXLogical * _objectSizeX;
+            var foodPosYPhysical = foodPosYLogical * _objectSizeY;
 
-            int foodPosX = _random.Next(0, maxPosX);
-            int foodPosY = _random.Next(0, maxPosY);
-
-            var food = new Food(foodPosX, foodPosY, _gameConfigurationProvider.GameObjectSizeX, _gameConfigurationProvider.GameObjectSizeY, Brushes.Red);
+            var food = new Food(foodPosXPhysical, foodPosYPhysical, _gameConfigurationProvider.GameObjectSizeX, _gameConfigurationProvider.GameObjectSizeY, Brushes.Red);
             FoodList.Add(food);
         }
 
@@ -125,28 +131,29 @@ namespace Snake.Game
                     switch (GameState.SnakeDirection)
                     {
                         case SnakeDirection.Right:
-                            Snake[i].X++;
+                            Snake[i].X += _objectSizeX;
                             break;
                         case SnakeDirection.Left:
-                            Snake[i].X--;
+                            Snake[i].X -= _objectSizeX;
                             break;
                         case SnakeDirection.Up:
-                            Snake[i].Y--;
+                            Snake[i].Y -= _objectSizeY;
                             break;
                         case SnakeDirection.Down:
-                            Snake[i].Y++;
+                            Snake[i].Y += _objectSizeY;
                             break;
                     }
 
                     //Get maximum X and Y Pos
-                    int maxXPos = GameAreaDimensionX / _gameConfigurationProvider.GameObjectSizeX;
-                    int maxYPos = GameAreaDimensionY / _gameConfigurationProvider.GameObjectSizeY;
+                    //int maxXPos = GameAreaDimensionX / _gameConfigurationProvider.GameObjectSizeX;
+                    //int maxYPos = GameAreaDimensionY / _gameConfigurationProvider.GameObjectSizeY;
 
                     //Detect collission with game borders.
                     if (Snake[i].X < 0 || Snake[i].Y < 0
-                        || Snake[i].X >= maxXPos || Snake[i].Y >= maxYPos)
+                        || Snake[i].X >= GameAreaDimensionX - _gameConfigurationProvider.GameObjectSizeX || Snake[i].Y >= (GameAreaDimensionY - _gameConfigurationProvider.GameObjectSizeY))
                     {
                         //Die();
+                        var a = 5;
                     }
 
 
@@ -161,9 +168,11 @@ namespace Snake.Game
                     }
 
                     //Detect collision with food piece
-                    if (Snake[0].X == FoodList[0].X && Snake[0].Y == FoodList[0].Y)
+                    if (Snake[0].XLogicalPosition == FoodList[0].XLogicalPosition &&
+                        Snake[0].YLogicalPosition == FoodList[0].YLogicalPosition)
                     {
                         //Eat();
+                        var eat = 5;
                     }
 
                 }
