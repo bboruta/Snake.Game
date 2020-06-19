@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interactivity;
 
@@ -9,14 +6,14 @@ namespace Snake.Game.Behaviors
 {
     public class KeyUpWithArgsBehavior : Behavior<UIElement>
     {
-        public ICommand KeyUpCommand
+        public ICommand KeyDownCommand
         {
-            get { return (ICommand)GetValue(KeyUpCommandProperty); }
-            set { SetValue(KeyUpCommandProperty, value); }
+            get { return (ICommand)GetValue(KeyDownCommandProperty); }
+            set { SetValue(KeyDownCommandProperty, value); }
         }
 
-        public static readonly DependencyProperty KeyUpCommandProperty =
-            DependencyProperty.Register("KeyUpCommand", typeof(ICommand), typeof(KeyUpWithArgsBehavior), new UIPropertyMetadata(null));
+        public static readonly DependencyProperty KeyDownCommandProperty =
+            DependencyProperty.Register("KeyDownCommand", typeof(ICommand), typeof(KeyUpWithArgsBehavior), new UIPropertyMetadata(null));
 
 
         protected override void OnAttached()
@@ -33,9 +30,9 @@ namespace Snake.Game.Behaviors
 
         private void AssociatedObjectKeyUp(object sender, KeyEventArgs e)
         {
-            if (KeyUpCommand != null)
+            if (KeyDownCommand != null)
             {
-                KeyUpCommand.Execute(e.Key);
+                KeyDownCommand.Execute(e.Key);
             }
         }
     }

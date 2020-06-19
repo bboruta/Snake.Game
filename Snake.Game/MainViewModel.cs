@@ -1,10 +1,13 @@
-﻿using Microsoft.Extensions.Configuration;
-using Snake.Contract;
+﻿//using Snake.Contract;
 using Snake.Game.Helpers;
+using Snake.Game.Shapes;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Collections.ObjectModel;
+using System.Drawing;
+using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace Snake.Game
@@ -14,9 +17,29 @@ namespace Snake.Game
         private IKeyboardConfigurationProvider _keyboardConfigurationProvider;
         private IGameConfigurationProvider _gameConfigurationProvider;
 
-        private List<SnakePart> _snake = new List<SnakePart>();
-        private Food _food;
-        private DispatcherTimer timer = new DispatcherTimer();        
+        private ObservableCollection<SnakePart> _snake = new ObservableCollection<SnakePart>();
+
+        public ObservableCollection<SnakePart> Snake
+        {
+            get
+            {
+                return _snake;
+            }
+            set => SetProperty(ref _snake, value);
+        }
+
+        private ObservableCollection<Food> _foodList = new ObservableCollection<Food>();
+
+        public ObservableCollection<Food> FoodList
+        {
+            get
+            {
+                return _foodList;
+            }
+            set => SetProperty(ref _foodList, value);
+        }
+
+        private DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Render, Application.Current.Dispatcher);        
         private Random _random = new Random();
 
         private Key _up;
@@ -47,8 +70,9 @@ namespace Snake.Game
             OnKeyDownCommand = new RelayCommandGeneric<Key>(p => OnKeyDown(p), p => true);
 
 
-            timer.Interval = TimeSpan.FromMilliseconds(1000 / gameConfigurationProvider.SnakeSpeed);
-            timer.Tick += UpdateScreen;
+            //timer.Interval = TimeSpan.FromMilliseconds(1000 / gameConfigurationProvider.SnakeSpeed);
+            timer.Interval = TimeSpan.FromMilliseconds(10);
+            timer.Tick += OnTimerTick;
             timer.Start();
 
             StartGame();
@@ -56,14 +80,19 @@ namespace Snake.Game
 
         public ICommand OnKeyDownCommand { get; }
 
-        public int GameAreaDimensionX { get; set; } = 400;
+        public int GameAreaDimensionX { get; } = 400;
 
-        public int GameAreaDimensionY { get; set; } = 400;
+        public int GameAreaDimensionY { get; } = 400;
+
+        //private SnakeDirection _snakeDirection = SnakeDirection.Up;
 
         private void StartGame()
         {
             _snake.Clear();
-            var head = new SnakePart(10, 5);
+            var initialPositionX = GameAreaDimensionX / 2;
+            var initialPositionY = GameAreaDimensionY / 2;
+            //var headGeometry = new Rectangle(initialPositionX, initialPositionY, _gameConfigurationProvider.GameObjectSizeX, _gameConfigurationProvider.GameObjectSizeY);
+            var head = new SnakePart(initialPositionX, initialPositionY, _gameConfigurationProvider.GameObjectSizeX, _gameConfigurationProvider.GameObjectSizeY, Brushes.LightGreen);
             _snake.Add(head);
 
             GenerateFood();
@@ -77,46 +106,102 @@ namespace Snake.Game
             int foodPosX = _random.Next(0, maxPosX);
             int foodPosY = _random.Next(0, maxPosY);
 
-            _food = new Food(foodPosX, foodPosY);
+            var food = new Food(foodPosX, foodPosY, _gameConfigurationProvider.GameObjectSizeX, _gameConfigurationProvider.GameObjectSizeY, Brushes.Red);
+            FoodList.Add(food);
         }
 
-        // to musi jakos odpowiadac na nacisniecie strzalki
-        private void UpdateScreen(object sender, EventArgs e)
+        private void OnTimerTick(object sender, EventArgs e)
         {
-            //sprawdzenie, czy przycisk przypisany do jakiegos ruchu zostal nacisniety
-            //zrobic jakis detector przycisku bez switch case pozniej - jakies przypisanie eventu i klasa ktora przeslania odpowiednio
-            // set snake direction
-            // then update snake position
-            //MoveSnake();
-
-            var a = 5;
-
-            //zmienic kierunek i ruszyc weza 
+            MoveSnake();            
         }
 
-        private void UpdateSnakeDirection(SnakeDirection direction)
+        private void MoveSnake()
         {
-            //var allPossibleKeys = Enum.GetValues(typeof(Key));
-            SnakeDirection = direction;
-
-            //GetDirectionForPressedKey
-        }
-
-        
-        private SnakeDirection GetDirectionForPressedKey(Key key)
-        {
-            if (_allowedMovementKeysMap.ContainsKey(key))
+            for (int i = Snake.Count - 1; i >= 0; --i)
             {
-                return _allowedMovementKeysMap[key];
-            }
+                //Move head
+                if (i == 0)
+                {
+                    switch (GameState.SnakeDirection)
+                    {
+                        case SnakeDirection.Right:
+                            Snake[i].X++;
+                            break;
+                        case SnakeDirection.Left:
+                            Snake[i].X--;
+                            break;
+                        case SnakeDirection.Up:
+                            Snake[i].Y--;
+                            break;
+                        case SnakeDirection.Down:
+                            Snake[i].Y++;
+                            break;
+                    }
 
-            return GameState.SnakeDirection;
+                    //Get maximum X and Y Pos
+                    int maxXPos = GameAreaDimensionX / _gameConfigurationProvider.GameObjectSizeX;
+                    int maxYPos = GameAreaDimensionY / _gameConfigurationProvider.GameObjectSizeY;
+
+                    //Detect collission with game borders.
+                    if (Snake[i].X < 0 || Snake[i].Y < 0
+                        || Snake[i].X >= maxXPos || Snake[i].Y >= maxYPos)
+                    {
+                        //Die();
+                    }
+
+
+                    //Detect collission with body
+                    for (int j = 1; j < Snake.Count; j++)
+                    {
+                        if (Snake[i].X == Snake[j].X &&
+                           Snake[i].Y == Snake[j].Y)
+                        {
+                            //Die();
+                        }
+                    }
+
+                    //Detect collision with food piece
+                    if (Snake[0].X == FoodList[0].X && Snake[0].Y == FoodList[0].Y)
+                    {
+                        //Eat();
+                    }
+
+                }
+                else
+                {
+                    //Move body
+                    Snake[i].X = Snake[i - 1].X;
+                    Snake[i].Y = Snake[i - 1].Y;
+                }
+            }
         }
+
+        private void DisplayGraphics()
+        {
+            //Graphics canvas = 
+        }
+
+        //private SnakeDirection GetDirectionForPressedKey(Key key)
+        //{
+        //    if (_allowedMovementKeysMap.ContainsKey(key))
+        //    {
+        //        var newDirection = _allowedMovementKeysMap[key];
+        //        GameState.SnakeDirection = newDirection;
+        //        return newDirection;
+        //    }
+
+        //    return GameState.SnakeDirection;
+        //}
 
         private void OnKeyDown(Key pressedKey)
         {
-            var direction = GetDirectionForPressedKey(pressedKey);
-            UpdateSnakeDirection(direction);
+            //var direction = GetDirectionForPressedKey(pressedKey);
+            if (_allowedMovementKeysMap.ContainsKey(pressedKey))
+            {
+                var newDirection = _allowedMovementKeysMap[pressedKey];
+                GameState.SnakeDirection = newDirection;
+            }
+
         }
     }
 }

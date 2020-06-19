@@ -7,15 +7,56 @@
         xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
         xmlns:local="clr-namespace:Snake.Game"
         xmlns:myBehaviors="clr-namespace:Snake.Game.Behaviors"
+        xmlns:shapes="clr-namespace:Snake.Game.Shapes"
         mc:Ignorable="d"
         Title="MainWindow" Height="480" Width="800">
     <wi:Interaction.Behaviors>
         <myBehaviors:KeyUpWithArgsBehavior
-                        KeyUpCommand="{Binding OnKeyDownCommand}"/>
+                        KeyDownCommand="{Binding OnKeyDownCommand}"/>
     </wi:Interaction.Behaviors>
     <Grid>
-        <Border HorizontalAlignment="Left" Height="400" Margin="36,38,0,0" VerticalAlignment="Top" Width="400" Background="Gray">
-            <Image HorizontalAlignment="Left" Height="{Binding GameAreaDimensionX}" Margin="36,38,0,0" VerticalAlignment="Top" Width="{Binding GameAreaDimension}" />
-        </Border>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+
+        <ItemsControl ItemsSource="{Binding FoodList, UpdateSourceTrigger=PropertyChanged }" Grid.Column="0">
+            <ItemsControl.Resources>
+                <DataTemplate DataType="{x:Type shapes:Food}">
+                    <Path Data="{Binding Geometry}" Fill="{Binding Fill}"/>
+                </DataTemplate>
+            </ItemsControl.Resources>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas Background="Black" Margin="20" HorizontalAlignment="Left" Height="{Binding GameAreaDimensionX}" Width="{Binding GameAreaDimensionY}" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="{Binding Path=X}" />
+                    <Setter Property="Canvas.Top" Value="{Binding Path=Y}" />
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
+
+        <ItemsControl ItemsSource="{Binding Snake, UpdateSourceTrigger=PropertyChanged }" Grid.Column="0">
+            <ItemsControl.Resources>
+                <DataTemplate DataType="{x:Type shapes:SnakePart}">
+                    <Path Data="{Binding Geometry}" Fill="{Binding Fill}"/>
+                </DataTemplate>
+            </ItemsControl.Resources>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <!--<Canvas Background="Black" Margin="20" HorizontalAlignment="Left" Height="{Binding GameAreaDimensionX}" Width="{Binding GameAreaDimensionY}" />-->
+                    <Canvas Margin="20" HorizontalAlignment="Left" Height="{Binding GameAreaDimensionX}" Width="{Binding GameAreaDimensionY}" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="{Binding Path=X}" />
+                    <Setter Property="Canvas.Top" Value="{Binding Path=Y}" />
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
     </Grid>
 </Window>
