@@ -196,7 +196,7 @@ namespace Snake.Game
             StartGame();
         }
 
-        private void SpawnFood()s
+        private void SpawnFood()
         {
             // there is always one piece of food
             FoodList.Clear();
