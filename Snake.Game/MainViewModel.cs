@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,6 +22,8 @@ namespace Snake.Game
         private IGameConfigurationProvider _gameConfigurationProvider;
 
         private ObservableCollection<SnakePart> _snake = new ObservableCollection<SnakePart>();
+
+        private Mutex _mutex = new Mutex();
 
         public ObservableCollection<SnakePart> Snake
         {
@@ -228,27 +231,45 @@ namespace Snake.Game
             get => _snakeImage;
             set
             {
+                _mutex.WaitOne();
                 SetProperty(ref _snakeImage, value);
+                _mutex.ReleaseMutex();
             }
         }
 
-        private async Task DownloadImage()
+        private int _currentImageIndex = 0;
+
+        private void DownloadImage()
         {
-            var imageIndex = _random.Next(_gameConfigurationProvider.ImagesLinks.Count());
-            var imageLink = _gameConfigurationProvider.ImagesLinks[imageIndex];
+            Thread DownloadImageCaller = new Thread(new ThreadStart(
+                () =>
+                {
+                    if (_currentImageIndex == _gameConfigurationProvider.ImagesLinks.Count())
+                    {
+                        _currentImageIndex = _random.Next(_currentImageIndex - 1);
+                    }
+                    else
+                    {
+                        var potentialImageIndexA = _random.Next(_currentImageIndex);
+                        var potentialImageIndexB = _random.Next(_currentImageIndex + 1, _gameConfigurationProvider.ImagesLinks.Count());
+                        _currentImageIndex = _random.Next(2) == 1 ? potentialImageIndexA : potentialImageIndexB;
+                    }                    
 
-            var httpClient = new HttpClient();
+                    var imageLink = _gameConfigurationProvider.ImagesLinks[_currentImageIndex];
+                    var httpClient = new HttpClient();
+                    var url = imageLink;
+                    var buffer = httpClient.GetByteArrayAsync(url).Result;
 
-            var url = imageLink;
+                    using (var stream = new MemoryStream(buffer))
+                    {
+                        buffer = stream.ToArray();
+                    }
 
-            var buffer = await httpClient.GetByteArrayAsync(url);
+                    SnakeImage = buffer;
+                }
+                ));
 
-            using (var stream = new MemoryStream(buffer))
-            {
-                buffer = stream.ToArray();
-            }
-
-            SnakeImage = buffer;
+            DownloadImageCaller.Start();
         }
     }
 }
