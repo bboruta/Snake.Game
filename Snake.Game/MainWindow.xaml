@@ -58,5 +58,7 @@
                 </Style>
             </ItemsControl.ItemContainerStyle>
         </ItemsControl>
+
+        <Image Grid.Column="1" Source="{Binding SnakeImage}"/>
     </Grid>
 </Window>

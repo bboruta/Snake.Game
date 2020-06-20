@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
+using System.Linq;
 
 namespace Snake.Game.Helpers
 {
@@ -18,5 +20,7 @@ namespace Snake.Game.Helpers
         public int GameObjectSizeX => int.Parse(_appsettings["GameObjectSizeX"]);
 
         public int GameObjectSizeY => int.Parse(_appsettings["GameObjectSizeY"]);
+
+        public List<string> ImagesLinks => _appsettings["ImagesLinks"].Split(";").ToList();
     }
 }

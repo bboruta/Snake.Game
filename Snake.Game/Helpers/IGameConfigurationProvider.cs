@@ -1,11 +1,16 @@
-﻿namespace Snake.Game.Helpers
+﻿using System.Collections.Generic;
+using System.Windows.Documents;
+
+namespace Snake.Game.Helpers
 {
     public interface IGameConfigurationProvider
     {
         int SnakeSpeed { get; }
 
-        public int GameObjectSizeX { get; }
+        int GameObjectSizeX { get; }
 
-        public int GameObjectSizeY { get; }
+        int GameObjectSizeY { get; }
+
+        List<string> ImagesLinks { get; }
     }
 }

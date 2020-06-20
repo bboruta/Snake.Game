@@ -3,7 +3,12 @@ using Snake.Game.Shapes;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -46,6 +51,7 @@ namespace Snake.Game
         private Key _right;
 
         private Dictionary<Key, SnakeDirection> _allowedMovementKeysMap;
+        private Dictionary<SnakeDirection, SnakeDirection> _oppositeDirections;
 
         private int _objectSizeX;
         private int _objectSizeY;
@@ -70,11 +76,18 @@ namespace Snake.Game
                 {_right, SnakeDirection.Right }
             };
 
+            _oppositeDirections = new Dictionary<SnakeDirection, SnakeDirection>()
+            {
+                {SnakeDirection.Up, SnakeDirection.Down },
+                {SnakeDirection.Down, SnakeDirection.Up },
+                {SnakeDirection.Left, SnakeDirection.Right },
+                {SnakeDirection.Right, SnakeDirection.Left }
+            };
+
             OnKeyDownCommand = new RelayCommandGeneric<Key>(p => OnKeyDown(p), p => true);
 
 
             timer.Interval = TimeSpan.FromMilliseconds(1000 / gameConfigurationProvider.SnakeSpeed);
-            //timer.Interval = TimeSpan.FromMilliseconds(10);
             timer.Tick += OnTimerTick;
             timer.Start();
 
@@ -87,33 +100,18 @@ namespace Snake.Game
         }
 
         public ICommand OnKeyDownCommand { get; }
-
         public int GameAreaDimensionX { get; } = 400;
-
         public int GameAreaDimensionY { get; } = 400;
-
-        //private SnakeDirection _snakeDirection = SnakeDirection.Up;
 
         private void StartGame()
         {
             _snake.Clear();
             var initialPositionX = (GameAreaDimensionX / 2) / _objectSizeX * _objectSizeX;
             var initialPositionY = (GameAreaDimensionY / 2) / _objectSizeY * _objectSizeY;
-            var head = new SnakePart(initialPositionX, initialPositionY, _gameConfigurationProvider.GameObjectSizeX, _gameConfigurationProvider.GameObjectSizeY, Brushes.LightGreen);
+            var head = new SnakePart(initialPositionX, initialPositionY, _objectSizeX, _objectSizeY, Brushes.LightGreen);
             _snake.Add(head);
 
-            GenerateFood();
-        }
-
-        private void GenerateFood()
-        {
-            var foodPosXLogical = _random.Next(0, _maxXPos);
-            var foodPosYLogical = _random.Next(0, _maxYPos);
-            var foodPosXPhysical = foodPosXLogical * _objectSizeX;
-            var foodPosYPhysical = foodPosYLogical * _objectSizeY;
-
-            var food = new Food(foodPosXPhysical, foodPosYPhysical, _gameConfigurationProvider.GameObjectSizeX, _gameConfigurationProvider.GameObjectSizeY, Brushes.Red);
-            FoodList.Add(food);
+            SpawnFood();
         }
 
         private void OnTimerTick(object sender, EventArgs e)
@@ -144,26 +142,22 @@ namespace Snake.Game
                             break;
                     }
 
-                    //Get maximum X and Y Pos
-                    //int maxXPos = GameAreaDimensionX / _gameConfigurationProvider.GameObjectSizeX;
-                    //int maxYPos = GameAreaDimensionY / _gameConfigurationProvider.GameObjectSizeY;
-
                     //Detect collission with game borders.
                     if (Snake[i].X < 0 || Snake[i].Y < 0
-                        || Snake[i].X >= GameAreaDimensionX - _gameConfigurationProvider.GameObjectSizeX || Snake[i].Y >= (GameAreaDimensionY - _gameConfigurationProvider.GameObjectSizeY))
+                        || Snake[i].X > GameAreaDimensionX - _objectSizeX 
+                        || Snake[i].Y > (GameAreaDimensionY - _objectSizeY))
                     {
-                        //Die();
-                        var a = 5;
+                        Die();
                     }
 
 
                     //Detect collission with body
                     for (int j = 1; j < Snake.Count; j++)
                     {
-                        if (Snake[i].X == Snake[j].X &&
-                           Snake[i].Y == Snake[j].Y)
+                        if (Snake[i].XLogicalPosition == Snake[j].XLogicalPosition &&
+                           Snake[i].YLogicalPosition == Snake[j].YLogicalPosition)
                         {
-                            //Die();
+                            Die();
                         }
                     }
 
@@ -171,8 +165,7 @@ namespace Snake.Game
                     if (Snake[0].XLogicalPosition == FoodList[0].XLogicalPosition &&
                         Snake[0].YLogicalPosition == FoodList[0].YLogicalPosition)
                     {
-                        //Eat();
-                        var eat = 5;
+                        Eat();
                     }
 
                 }
@@ -185,32 +178,77 @@ namespace Snake.Game
             }
         }
 
-        private void DisplayGraphics()
+        private void Eat()
         {
-            //Graphics canvas = 
+            var bodyPart = new SnakePart(Snake.Last().X, Snake.Last().Y, _objectSizeX, _objectSizeY, Brushes.DarkGreen);
+            _snake.Add(bodyPart);
+            SpawnFood();
+            //download image and display it
+            DownloadImage();
         }
 
-        //private SnakeDirection GetDirectionForPressedKey(Key key)
-        //{
-        //    if (_allowedMovementKeysMap.ContainsKey(key))
-        //    {
-        //        var newDirection = _allowedMovementKeysMap[key];
-        //        GameState.SnakeDirection = newDirection;
-        //        return newDirection;
-        //    }
+        private void Die()
+        {
+            //pokaz jakis napis ze game over
+            // pokaz wynik moze
+            // jesli nacisnie dowolny klawisz to restart i jakies male odliczanie 3,2,1
+            // ale to juz na sam koniec
+            StartGame();
+        }
 
-        //    return GameState.SnakeDirection;
-        //}
+        private void SpawnFood()s
+        {
+            // there is always one piece of food
+            FoodList.Clear();
+            var foodPosXLogical = _random.Next(0, _maxXPos);
+            var foodPosYLogical = _random.Next(0, _maxYPos);
+            var foodPosXPhysical = foodPosXLogical * _objectSizeX;
+            var foodPosYPhysical = foodPosYLogical * _objectSizeY;
+
+            var food = new Food(foodPosXPhysical, foodPosYPhysical, _gameConfigurationProvider.GameObjectSizeX, _gameConfigurationProvider.GameObjectSizeY, Brushes.Red);
+            FoodList.Add(food);
+        }
 
         private void OnKeyDown(Key pressedKey)
         {
-            //var direction = GetDirectionForPressedKey(pressedKey);
             if (_allowedMovementKeysMap.ContainsKey(pressedKey))
             {
                 var newDirection = _allowedMovementKeysMap[pressedKey];
-                GameState.SnakeDirection = newDirection;
+                if (_oppositeDirections[GameState.SnakeDirection] != newDirection)
+                {
+                    GameState.SnakeDirection = newDirection;
+                }                
+            }
+        }
+
+        private byte[] _snakeImage;
+
+        public byte[] SnakeImage
+        {
+            get => _snakeImage;
+            set
+            {
+                SetProperty(ref _snakeImage, value);
+            }
+        }
+
+        private async Task DownloadImage()
+        {
+            var imageIndex = _random.Next(_gameConfigurationProvider.ImagesLinks.Count());
+            var imageLink = _gameConfigurationProvider.ImagesLinks[imageIndex];
+
+            var httpClient = new HttpClient();
+
+            var url = imageLink;
+
+            var buffer = await httpClient.GetByteArrayAsync(url);
+
+            using (var stream = new MemoryStream(buffer))
+            {
+                buffer = stream.ToArray();
             }
 
+            SnakeImage = buffer;
         }
     }
 }
