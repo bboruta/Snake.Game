@@ -22,7 +22,7 @@
 
         <ItemsControl ItemsSource="{Binding FoodList, UpdateSourceTrigger=PropertyChanged }" Grid.Column="0">
             <ItemsControl.Resources>
-                <DataTemplate DataType="{x:Type shapes:Food}">
+                <DataTemplate DataType="{x:Type shapes:FoodShape}">
                     <Path Data="{Binding Geometry}" Fill="{Binding Fill}"/>
                 </DataTemplate>
             </ItemsControl.Resources>
@@ -41,7 +41,7 @@
 
         <ItemsControl ItemsSource="{Binding Snake, UpdateSourceTrigger=PropertyChanged }" Grid.Column="0">
             <ItemsControl.Resources>
-                <DataTemplate DataType="{x:Type shapes:SnakePart}">
+                <DataTemplate DataType="{x:Type shapes:SnakePartShape}">
                     <Path Data="{Binding Geometry}" Fill="{Binding Fill}"/>
                 </DataTemplate>
             </ItemsControl.Resources>

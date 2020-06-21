@@ -1,5 +1,5 @@
 ﻿using Autofac;
-using Snake.Game.Autofac;
+using Snake.Game.AutofacConfig;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
