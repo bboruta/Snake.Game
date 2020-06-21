@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Snake.Contract
+﻿namespace Snake.Contract.Models
 {
-    public class Food
+    public class SnakePart
     {
         public int X { get; set; }
         public int Y { get; set; }
 
-        public Food()
+        public SnakePart()
         {
             X = 0;
             Y = 0;
         }
 
-        public Food(int x, int y)
+        public SnakePart(int x, int y)
         {
             X = x;
             Y = y;

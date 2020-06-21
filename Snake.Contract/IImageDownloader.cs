@@ -4,11 +4,8 @@ using System.Text;
 
 namespace Snake.Contract
 {
-    public enum InputKey
+    public interface IImageDownloader
     {
-        Up,
-        Down,
-        Left,
-        Right
+        byte[] DrawSnakeImage(IEnumerable<string> imagesLinks);
     }
 }

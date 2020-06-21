@@ -7,9 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -89,7 +87,6 @@ namespace Snake.Game
 
             OnKeyDownCommand = new RelayCommandGeneric<Key>(p => OnKeyDown(p), p => true);
 
-
             timer.Interval = TimeSpan.FromMilliseconds(1000 / gameConfigurationProvider.SnakeSpeed);
             timer.Tick += OnTimerTick;
             timer.Start();
@@ -98,8 +95,8 @@ namespace Snake.Game
             _objectSizeY = _gameConfigurationProvider.GameObjectSizeY;
             _maxXPos = GameAreaDimensionX / _objectSizeX;
             _maxYPos = GameAreaDimensionY / _objectSizeY;
-
-        StartGame();
+            
+            StartGame();
         }
 
         public ICommand OnKeyDownCommand { get; }
@@ -244,13 +241,13 @@ namespace Snake.Game
             Thread DownloadImageCaller = new Thread(new ThreadStart(
                 () =>
                 {
-                    if (_currentImageIndex == _gameConfigurationProvider.ImagesLinks.Count())
+                    if (_currentImageIndex == _gameConfigurationProvider.ImagesLinks.Count() - 1)
                     {
-                        _currentImageIndex = _random.Next(_currentImageIndex - 1);
+                        _currentImageIndex = _random.Next(0, _currentImageIndex);
                     }
                     else
                     {
-                        var potentialImageIndexA = _random.Next(_currentImageIndex);
+                        var potentialImageIndexA = _random.Next(0, _currentImageIndex);
                         var potentialImageIndexB = _random.Next(_currentImageIndex + 1, _gameConfigurationProvider.ImagesLinks.Count());
                         _currentImageIndex = _random.Next(2) == 1 ? potentialImageIndexA : potentialImageIndexB;
                     }                    
