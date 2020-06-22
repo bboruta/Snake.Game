@@ -1,5 +1,6 @@
 ﻿using Snake.Contract;
 using Snake.Contract.Models;
+using Snake.Domain;
 using Snake.Game.ExtensionMethods;
 using Snake.Game.Helpers;
 using Snake.Game.Shapes;
@@ -22,6 +23,7 @@ namespace Snake.Game
         private IKeyboardConfigurationProvider _keyboardConfigurationProvider;
         private IGameConfigurationProvider _gameConfigurationProvider;
         private ICollisionDetector _collisionDetector;
+        private IFoodCreator _foodCreator;
 
         private Mutex _mutex = new Mutex();
 
@@ -61,18 +63,20 @@ namespace Snake.Game
 
         private int _objectSizeX;
         private int _objectSizeY;
-        private int _maxXPos;
-        private int _maxYPos;
+        private int _maxXLogicalPosition;
+        private int _maxYLogicalPosition;
 
         public MainViewModel(
             IKeyboardConfigurationProvider keyboardConfigurationProvider,
             IGameConfigurationProvider gameConfigurationProvider,
-            ICollisionDetector collisionDetector
+            ICollisionDetector collisionDetector,
+            IFoodCreator foodCreator
             )
         {
             _keyboardConfigurationProvider = keyboardConfigurationProvider;
             _gameConfigurationProvider = gameConfigurationProvider;
             _collisionDetector = collisionDetector;
+            _foodCreator = foodCreator;
 
             _up = _keyboardConfigurationProvider.Up;
             _down = _keyboardConfigurationProvider.Down;
@@ -103,8 +107,8 @@ namespace Snake.Game
 
             _objectSizeX = _gameConfigurationProvider.GameObjectSizeX;
             _objectSizeY = _gameConfigurationProvider.GameObjectSizeY;
-            _maxXPos = GameAreaDimensionX / _objectSizeX;
-            _maxYPos = GameAreaDimensionY / _objectSizeY;
+            _maxXLogicalPosition = GameAreaDimensionX / _objectSizeX;
+            _maxYLogicalPosition = GameAreaDimensionY / _objectSizeY;
             
             StartGame();
         }
@@ -155,7 +159,7 @@ namespace Snake.Game
                     }
 
                     _snakeForDomain = Snake.MapToSnakePartCollection();
-                    if (_collisionDetector.SnakeBorderCollisionHappened(_snakeForDomain, GameAreaDimensionX, GameAreaDimensionY, _objectSizeX, _objectSizeY))
+                    if (_collisionDetector.SnakeBorderCollisionHappened(_snakeForDomain, _maxXLogicalPosition, _maxYLogicalPosition))
                     {
                         Die();
                     }
@@ -201,13 +205,12 @@ namespace Snake.Game
         {
             // there is always one piece of food
             FoodList.Clear();
-            var foodPosXLogical = _random.Next(0, _maxXPos);
-            var foodPosYLogical = _random.Next(0, _maxYPos);
-            var foodPosXPhysical = foodPosXLogical * _objectSizeX;
-            var foodPosYPhysical = foodPosYLogical * _objectSizeY;
+            var newFood = _foodCreator.CreateFoodPiece(_maxXLogicalPosition, _maxYLogicalPosition);
+            var foodPosXPhysical = newFood.X * _objectSizeX;
+            var foodPosYPhysical = newFood.Y * _objectSizeY;
 
-            var food = new FoodShape(foodPosXPhysical, foodPosYPhysical, _gameConfigurationProvider.GameObjectSizeX, _gameConfigurationProvider.GameObjectSizeY, Brushes.Red);
-            FoodList.Add(food);
+            var foodToSpawn = new FoodShape(foodPosXPhysical, foodPosYPhysical, _gameConfigurationProvider.GameObjectSizeX, _gameConfigurationProvider.GameObjectSizeY, Brushes.Red);
+            FoodList.Add(foodToSpawn);
         }
 
         private void OnKeyDown(Key pressedKey)

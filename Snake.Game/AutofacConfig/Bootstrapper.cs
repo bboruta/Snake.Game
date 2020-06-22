@@ -18,6 +18,7 @@ namespace Snake.Game.AutofacConfig
             builder.RegisterType<KeyboardConfigurationProvider>().As<IKeyboardConfigurationProvider>();
             builder.RegisterType<GameConfigurationProvider>().As<IGameConfigurationProvider>();
             builder.RegisterType<CollisionDetector>().As<ICollisionDetector>();
+            builder.RegisterType<FoodCreator>().As<IFoodCreator>();
 
             //register automapper
             builder.RegisterModule(new AutoMapperModule());

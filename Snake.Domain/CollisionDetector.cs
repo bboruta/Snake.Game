@@ -9,11 +9,11 @@ namespace Snake.Domain
 {
     public class CollisionDetector : ICollisionDetector
     {
-        public bool SnakeBorderCollisionHappened(IEnumerable<SnakePart> snake, int borderHeight, int borderWidth, int objectSizeX, int objectSizeY)
+        public bool SnakeBorderCollisionHappened(IEnumerable<SnakePart> snake, int borderHeight, int borderWidth)
         {
             if (snake.First().X < 0 || snake.First().Y < 0
-                || snake.First().X > borderHeight - objectSizeX
-                || snake.First().Y > (borderWidth - objectSizeY))
+                || snake.First().X >= borderHeight
+                || snake.First().Y >= (borderWidth))
             {
                 return true;
             }

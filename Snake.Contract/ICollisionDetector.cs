@@ -7,7 +7,7 @@ namespace Snake.Contract
 {
     public interface ICollisionDetector
     {
-        bool SnakeBorderCollisionHappened(IEnumerable<SnakePart> snake, int borderHeight, int borderWidth, int objectSizeX, int objectSizeY);
+        bool SnakeBorderCollisionHappened(IEnumerable<SnakePart> snake, int borderHeight, int borderWidth);
 
         bool SnakeHitsHimselfCollisionHappened(IEnumerable<SnakePart> snake);
 
