@@ -23,9 +23,6 @@ namespace Snake.Game.AutofacConfig
             builder.RegisterType<ImageDownloader>().As<IImageDownloader>();
             // infrastructure
             builder.RegisterType<WebImageRepository>().As<IWebImageRepository>();
-
-            //register automapper
-            builder.RegisterModule(new AutoMapperModule());
         }
 
         public void ConfigureApplication(IContainer container)
