@@ -8,8 +8,14 @@
         xmlns:local="clr-namespace:Snake.Game"
         xmlns:myBehaviors="clr-namespace:Snake.Game.Behaviors"
         xmlns:shapes="clr-namespace:Snake.Game.Shapes"
+        xmlns:controls="System.Windows.Controls"
         mc:Ignorable="d"
         Title="MainWindow" Height="480" Width="800">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="VisibleIfTrueConverter" />
+    </Window.Resources>
+    
     <wi:Interaction.Behaviors>
         <myBehaviors:KeyUpWithArgsBehavior
                         KeyDownCommand="{Binding OnKeyDownCommand}"/>
@@ -47,7 +53,6 @@
             </ItemsControl.Resources>
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <!--<Canvas Background="Black" Margin="20" HorizontalAlignment="Left" Height="{Binding GameAreaDimensionX}" Width="{Binding GameAreaDimensionY}" />-->
                     <Canvas Margin="20" HorizontalAlignment="Left" Height="{Binding GameAreaDimensionX}" Width="{Binding GameAreaDimensionY}" />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
@@ -58,6 +63,17 @@
                 </Style>
             </ItemsControl.ItemContainerStyle>
         </ItemsControl>
+
+        <TextBlock Text="Press ENTER to start the game" Foreground="White" FontFamily="Resources/Fonts/#ThaleahFat" FontSize="25.0"
+                   Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="50,0,0,0"
+                   Visibility="{Binding IsWelcomeMessageDisplayed, Converter={StaticResource VisibleIfTrueConverter}}"/>
+
+        <TextBlock Text="You died!" Foreground="Red" FontFamily="Resources/Fonts/#ThaleahFat" FontSize="35.0"
+                   Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="100,0,0,0"
+                   Visibility="{Binding IsGameOverMessageDisplayed, Converter={StaticResource VisibleIfTrueConverter}}"/>
+        <TextBlock Text="Press ENTER to restart" Foreground="White" FontFamily="Resources/Fonts/#ThaleahFat" FontSize="25.0"
+                   Grid.Column="0" HorizontalAlignment="Left" Margin="50,100,0,0"
+                   Visibility="{Binding IsGameOverMessageDisplayed, Converter={StaticResource VisibleIfTrueConverter}}"/>
 
         <Image Grid.Column="1" Source="{Binding SnakeImage}" VerticalAlignment="Center" HorizontalAlignment="Left" Width="200" Height="150"/>
     </Grid>

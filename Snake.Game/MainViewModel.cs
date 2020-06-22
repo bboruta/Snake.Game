@@ -100,6 +100,27 @@ namespace Snake.Game
         public int GameAreaDimensionX { get; } = 400;
         public int GameAreaDimensionY { get; } = 400;
 
+        private bool _isGameStarted = false;
+        public bool IsGameStarted
+        {
+            get => _isGameStarted;
+            set => SetProperty(ref _isGameStarted, value);
+        }
+
+        private bool _isWelcomeMessageDisplayed = true;
+        public bool IsWelcomeMessageDisplayed
+        {
+            get => _isWelcomeMessageDisplayed;
+            set => SetProperty(ref _isWelcomeMessageDisplayed, value);
+        }
+
+        public bool _isGameOverMessageDisplayed = false;
+        public bool IsGameOverMessageDisplayed
+        {
+            get => _isGameOverMessageDisplayed;
+            set => SetProperty(ref _isGameOverMessageDisplayed, value);
+        }
+
         public ObservableCollection<SnakePartShape> Snake
         {
             get
@@ -142,7 +163,10 @@ namespace Snake.Game
 
         private void OnTimerTick(object sender, EventArgs e)
         {
-            MoveSnake();            
+            if (IsGameStarted)
+            {
+                MoveSnake();
+            }            
         }
 
         private void MoveSnake()
@@ -205,10 +229,8 @@ namespace Snake.Game
 
         private void Die()
         {
-            //pokaz jakis napis ze game over
-            // pokaz wynik moze
-            // jesli nacisnie dowolny klawisz to restart i jakies male odliczanie 3,2,1
-            // ale to juz na sam koniec
+            IsGameOverMessageDisplayed = true;
+            IsGameStarted = false;
             StartGame();
         }
 
@@ -233,7 +255,13 @@ namespace Snake.Game
                 {
                     GameState.SnakeDirection = newDirection;
                 }                
+            } else if (pressedKey.Equals(Key.Enter))
+            {
+                IsGameStarted = true;
+                IsWelcomeMessageDisplayed = false;
+                IsGameOverMessageDisplayed = false;
             }
+
         }
 
         private void DownloadImage()
