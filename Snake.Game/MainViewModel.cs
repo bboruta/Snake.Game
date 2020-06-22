@@ -23,7 +23,7 @@ namespace Snake.Game
         private IFoodCreator _foodCreator;
         private IImageDownloader _imageDownloader;
 
-        private Mutex _mutex = new Mutex();
+        private Mutex _imageDownloadMutex = new Mutex();
 
         private ObservableCollection<SnakePartShape> _snake = new ObservableCollection<SnakePartShape>();
         private IEnumerable<SnakePart> _snakeForDomain;
@@ -144,9 +144,9 @@ namespace Snake.Game
             get => _snakeImage;
             set
             {
-                _mutex.WaitOne();
+                _imageDownloadMutex.WaitOne();
                 SetProperty(ref _snakeImage, value);
-                _mutex.ReleaseMutex();
+                _imageDownloadMutex.ReleaseMutex();
             }
         }
 
@@ -216,6 +216,13 @@ namespace Snake.Game
                     Snake[i].X = Snake[i - 1].X;
                     Snake[i].Y = Snake[i - 1].Y;
                 }
+
+                //change direction if there was direction change triggered - without it snake could turn around in place
+                if (_directions.Count() > 0)
+                {
+                    GameState.SnakeDirection = _directions.First();
+                    _directions.RemoveAt(0);
+                }
             }
         }
 
@@ -246,6 +253,8 @@ namespace Snake.Game
             FoodList.Add(foodToSpawn);
         }
 
+        private List<SnakeDirection> _directions = new List<SnakeDirection>();
+
         private void OnKeyDown(Key pressedKey)
         {
             if (_allowedMovementKeysMap.ContainsKey(pressedKey))
@@ -253,8 +262,9 @@ namespace Snake.Game
                 var newDirection = _allowedMovementKeysMap[pressedKey];
                 if (_oppositeDirections[GameState.SnakeDirection] != newDirection)
                 {
-                    GameState.SnakeDirection = newDirection;
-                }                
+                    //GameState.SnakeDirection = newDirection;
+                    _directions.Add(newDirection);
+                }
             } else if (pressedKey.Equals(Key.Enter))
             {
                 IsGameStarted = true;
