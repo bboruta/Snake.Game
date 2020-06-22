@@ -1,15 +1,12 @@
 ﻿using Snake.Contract;
 using Snake.Contract.Models;
-using Snake.Domain;
 using Snake.Game.ExtensionMethods;
 using Snake.Game.Helpers;
 using Snake.Game.Shapes;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
@@ -30,29 +27,9 @@ namespace Snake.Game
 
         private ObservableCollection<SnakePartShape> _snake = new ObservableCollection<SnakePartShape>();
         private IEnumerable<SnakePart> _snakeForDomain;
-
-        public ObservableCollection<SnakePartShape> Snake
-        {
-            get
-            {
-                return _snake;
-            }
-            set => SetProperty(ref _snake, value);
-        }
-
         private ObservableCollection<FoodShape> _foodList = new ObservableCollection<FoodShape>();
 
-        public ObservableCollection<FoodShape> FoodList
-        {
-            get
-            {
-                return _foodList;
-            }
-            set => SetProperty(ref _foodList, value);
-        }
-
-        private DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Render, Application.Current.Dispatcher);        
-        private Random _random = new Random();
+        private DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Render, Application.Current.Dispatcher);
 
         private Key _up;
         private Key _down;
@@ -66,6 +43,9 @@ namespace Snake.Game
         private int _objectSizeY;
         private int _maxXLogicalPosition;
         private int _maxYLogicalPosition;
+
+        private byte[] _snakeImage;
+        private int _currentImageIndex = 0;
 
         public MainViewModel(
             IKeyboardConfigurationProvider keyboardConfigurationProvider,
@@ -119,6 +99,35 @@ namespace Snake.Game
         public ICommand OnKeyDownCommand { get; }
         public int GameAreaDimensionX { get; } = 400;
         public int GameAreaDimensionY { get; } = 400;
+
+        public ObservableCollection<SnakePartShape> Snake
+        {
+            get
+            {
+                return _snake;
+            }
+            set => SetProperty(ref _snake, value);
+        }
+
+        public ObservableCollection<FoodShape> FoodList
+        {
+            get
+            {
+                return _foodList;
+            }
+            set => SetProperty(ref _foodList, value);
+        }
+
+        public byte[] SnakeImage
+        {
+            get => _snakeImage;
+            set
+            {
+                _mutex.WaitOne();
+                SetProperty(ref _snakeImage, value);
+                _mutex.ReleaseMutex();
+            }
+        }
 
         private void StartGame()
         {
@@ -191,7 +200,6 @@ namespace Snake.Game
             var bodyPart = new SnakePartShape(Snake.Last().X, Snake.Last().Y, _objectSizeX, _objectSizeY, Brushes.DarkGreen);
             _snake.Add(bodyPart);
             SpawnFood();
-            //download image and display it
             DownloadImage();
         }
 
@@ -227,21 +235,6 @@ namespace Snake.Game
                 }                
             }
         }
-
-        private byte[] _snakeImage;
-
-        public byte[] SnakeImage
-        {
-            get => _snakeImage;
-            set
-            {
-                _mutex.WaitOne();
-                SetProperty(ref _snakeImage, value);
-                _mutex.ReleaseMutex();
-            }
-        }
-
-        private int _currentImageIndex = 0;
 
         private void DownloadImage()
         {

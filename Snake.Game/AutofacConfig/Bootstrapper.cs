@@ -2,7 +2,7 @@
 using Snake.Contract;
 using Snake.Domain;
 using Snake.Game.Helpers;
-using Snake.Infrastructure;
+using Snake.Infrastructure.Autofac;
 
 namespace Snake.Game.AutofacConfig
 {
@@ -10,19 +10,21 @@ namespace Snake.Game.AutofacConfig
     {
         public void ConfigureContainer(ContainerBuilder builder)
         {
-            //register views and view models
+            // register views and view models
             builder.RegisterType<MainWindow>().SingleInstance();
             builder.RegisterType<MainViewModel>().SingleInstance();
 
-            //register all dependency types that you want to use
-            //todo: move it to separate module later
+            // config
             builder.RegisterType<KeyboardConfigurationProvider>().As<IKeyboardConfigurationProvider>();
             builder.RegisterType<GameConfigurationProvider>().As<IGameConfigurationProvider>();
+
+            // domain
             builder.RegisterType<CollisionDetector>().As<ICollisionDetector>();
             builder.RegisterType<FoodCreator>().As<IFoodCreator>();
             builder.RegisterType<ImageDownloader>().As<IImageDownloader>();
+
             // infrastructure
-            builder.RegisterType<WebImageRepository>().As<IWebImageRepository>();
+            builder.RegisterModule(new InfrastructureModule());
         }
 
         public void ConfigureApplication(IContainer container)
