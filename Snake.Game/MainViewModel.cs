@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Snake.Contract;
+﻿using Snake.Contract;
 using Snake.Contract.Models;
 using Snake.Game.ExtensionMethods;
 using Snake.Game.Helpers;
@@ -132,6 +131,8 @@ namespace Snake.Game
 
         private void MoveSnake()
         {
+            var mappedFood = FoodList.First().MapToFood();
+
             for (int i = Snake.Count - 1; i >= 0; --i)
             {
                 //Move head
@@ -159,25 +160,15 @@ namespace Snake.Game
                         Die();
                     }
 
-
-                    //Detect collission with body
                     if (_collisionDetector.SnakeHitsHimselfCollisionHappened(_snakeForDomain))
                     {
                         Die();
                     }
-
-                    //Detect collision with food piece
-                    //if (_collisionDetector.SnakeFoodCollisionHappened(_snakeForDomain, FoodList.First()))
-                    //{
-                    //    Eat();
-                    //}
-
-                    if (Snake[0].XLogicalPosition == FoodList[0].XLogicalPosition &&
-                        Snake[0].YLogicalPosition == FoodList[0].YLogicalPosition)
+              
+                    if (_collisionDetector.SnakeFoodCollisionHappened(_snakeForDomain, mappedFood))
                     {
                         Eat();
                     }
-
                 }
                 else
                 {

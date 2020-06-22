@@ -23,7 +23,13 @@ namespace Snake.Domain
 
         public bool SnakeFoodCollisionHappened(IEnumerable<SnakePart> snake, Food food)
         {
-            throw new NotImplementedException();
+            if (snake.First().X == food.X &&
+                snake.First().Y == food.Y)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public bool SnakeHitsHimselfCollisionHappened(IEnumerable<SnakePart> snake)

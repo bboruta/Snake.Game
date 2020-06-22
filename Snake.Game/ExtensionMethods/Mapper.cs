@@ -30,5 +30,10 @@ namespace Snake.Game.ExtensionMethods
 
             return collection;
         }
+
+        public static Food MapToFood(this FoodShape foodShape)
+        {
+            return new Food(foodShape.XLogicalPosition, foodShape.YLogicalPosition);
+        }
     }
 }
