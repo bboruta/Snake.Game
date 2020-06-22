@@ -2,6 +2,7 @@
 using Snake.Contract;
 using Snake.Domain;
 using Snake.Game.Helpers;
+using Snake.Infrastructure;
 
 namespace Snake.Game.AutofacConfig
 {
@@ -19,6 +20,9 @@ namespace Snake.Game.AutofacConfig
             builder.RegisterType<GameConfigurationProvider>().As<IGameConfigurationProvider>();
             builder.RegisterType<CollisionDetector>().As<ICollisionDetector>();
             builder.RegisterType<FoodCreator>().As<IFoodCreator>();
+            builder.RegisterType<ImageDownloader>().As<IImageDownloader>();
+            // infrastructure
+            builder.RegisterType<WebImageRepository>().As<IWebImageRepository>();
 
             //register automapper
             builder.RegisterModule(new AutoMapperModule());

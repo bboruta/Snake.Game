@@ -24,6 +24,7 @@ namespace Snake.Game
         private IGameConfigurationProvider _gameConfigurationProvider;
         private ICollisionDetector _collisionDetector;
         private IFoodCreator _foodCreator;
+        private IImageDownloader _imageDownloader;
 
         private Mutex _mutex = new Mutex();
 
@@ -70,13 +71,15 @@ namespace Snake.Game
             IKeyboardConfigurationProvider keyboardConfigurationProvider,
             IGameConfigurationProvider gameConfigurationProvider,
             ICollisionDetector collisionDetector,
-            IFoodCreator foodCreator
+            IFoodCreator foodCreator,
+            IImageDownloader imageDownloader
             )
         {
             _keyboardConfigurationProvider = keyboardConfigurationProvider;
             _gameConfigurationProvider = gameConfigurationProvider;
             _collisionDetector = collisionDetector;
             _foodCreator = foodCreator;
+            _imageDownloader = imageDownloader;
 
             _up = _keyboardConfigurationProvider.Up;
             _down = _keyboardConfigurationProvider.Down;
@@ -242,31 +245,10 @@ namespace Snake.Game
 
         private void DownloadImage()
         {
-            Thread DownloadImageCaller = new Thread(new ThreadStart(
+            var DownloadImageCaller = new Thread(new ThreadStart(
                 () =>
                 {
-                    if (_currentImageIndex == _gameConfigurationProvider.ImagesLinks.Count() - 1)
-                    {
-                        _currentImageIndex = _random.Next(0, _currentImageIndex);
-                    }
-                    else
-                    {
-                        var potentialImageIndexA = _random.Next(0, _currentImageIndex);
-                        var potentialImageIndexB = _random.Next(_currentImageIndex + 1, _gameConfigurationProvider.ImagesLinks.Count());
-                        _currentImageIndex = _random.Next(2) == 1 ? potentialImageIndexA : potentialImageIndexB;
-                    }                    
-
-                    var imageLink = _gameConfigurationProvider.ImagesLinks[_currentImageIndex];
-                    var httpClient = new HttpClient();
-                    var url = imageLink;
-                    var buffer = httpClient.GetByteArrayAsync(url).Result;
-
-                    using (var stream = new MemoryStream(buffer))
-                    {
-                        buffer = stream.ToArray();
-                    }
-
-                    SnakeImage = buffer;
+                    (SnakeImage, _currentImageIndex) = _imageDownloader.DownloadRandomSnakeImageAsync(_gameConfigurationProvider.ImagesLinks, _currentImageIndex);
                 }
                 ));
 

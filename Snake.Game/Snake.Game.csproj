@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Snake.Contract\Snake.Contract.csproj" />
     <ProjectReference Include="..\Snake.Domain\Snake.Domain.csproj" />
+    <ProjectReference Include="..\Snake.Infrastructure\Snake.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

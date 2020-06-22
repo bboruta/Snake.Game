@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Snake.Contract
 {
     public interface IImageDownloader
     {
-        byte[] DrawSnakeImage(IEnumerable<string> imagesLinks);
+        (byte[], int) DownloadRandomSnakeImageAsync(IEnumerable<string> imagesLinks, int lastImageIndex);
     }
 }
