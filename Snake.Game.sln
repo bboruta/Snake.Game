@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Snake.Contract", "Snake.Con
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Snake.Domain", "Snake.Domain\Snake.Domain.csproj", "{71BC9BA2-8DB7-42E4-88F9-5D1B636AA531}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snake.Infrastructure", "Snake.Infrastructure\Snake.Infrastructure.csproj", "{9177A5EA-1B34-45AC-ABB6-62EEB7BBFDF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Snake.Infrastructure", "Snake.Infrastructure\Snake.Infrastructure.csproj", "{9177A5EA-1B34-45AC-ABB6-62EEB7BBFDF9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snake.Tests", "Snake.Tests\Snake.Tests.csproj", "{79172ECF-190E-401D-8B4E-F6321522A5CC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{9177A5EA-1B34-45AC-ABB6-62EEB7BBFDF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9177A5EA-1B34-45AC-ABB6-62EEB7BBFDF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9177A5EA-1B34-45AC-ABB6-62EEB7BBFDF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79172ECF-190E-401D-8B4E-F6321522A5CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79172ECF-190E-401D-8B4E-F6321522A5CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79172ECF-190E-401D-8B4E-F6321522A5CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79172ECF-190E-401D-8B4E-F6321522A5CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
