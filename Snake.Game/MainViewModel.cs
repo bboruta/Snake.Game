@@ -110,11 +110,18 @@ namespace Snake.Game
             set => SetProperty(ref _isWelcomeMessageDisplayed, value);
         }
 
-        public bool _isGameOverMessageDisplayed = false;
+        private bool _isGameOverMessageDisplayed = false;
         public bool IsGameOverMessageDisplayed
         {
             get => _isGameOverMessageDisplayed;
             set => SetProperty(ref _isGameOverMessageDisplayed, value);
+        }
+
+        private int _score = 0;
+        public int Score
+        {
+            get => _score;
+            set => SetProperty(ref _score, value);
         }
 
         public ObservableCollection<SnakePartShape> Snake
@@ -146,6 +153,11 @@ namespace Snake.Game
             }
         }
 
+        public String Up => _up.ToString();
+        public String Down => _down.ToString();
+        public String Left => _left.ToString();
+        public String Right => _right.ToString();
+
         private void StartGame()
         {
             _snake.Clear();
@@ -153,7 +165,8 @@ namespace Snake.Game
             var initialPositionY = (GameAreaDimensionY / 2) / _objectSizeY * _objectSizeY;
             var head = new SnakePartShape(initialPositionX, initialPositionY, _objectSizeX, _objectSizeY, Brushes.LightGreen);
             _snake.Add(head);
-
+            Score = 0;
+            SnakeImage = null;
             SpawnFood();
         }
 
@@ -227,6 +240,7 @@ namespace Snake.Game
             var bodyPart = new SnakePartShape(Snake.Last().X, Snake.Last().Y, _objectSizeX, _objectSizeY, Brushes.DarkGreen);
             _snake.Add(bodyPart);
             SpawnFood();
+            Score++;
             DownloadImage();
         }
 
@@ -234,7 +248,7 @@ namespace Snake.Game
         {
             IsGameOverMessageDisplayed = true;
             IsGameStarted = false;
-            StartGame();
+            //StartGame();
         }
 
         private void SpawnFood()
@@ -264,6 +278,7 @@ namespace Snake.Game
                 IsGameStarted = true;
                 IsWelcomeMessageDisplayed = false;
                 IsGameOverMessageDisplayed = false;
+                StartGame();
             }
 
         }
