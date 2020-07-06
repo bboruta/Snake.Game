@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace Snake.Tests.Unit
 {
     [TestFixture]
-    public class CollistionDetectorTest
+    public class CollistionDetectorTests
     {
         private CollisionDetector _uut;
         private const int borderHeight = 100;

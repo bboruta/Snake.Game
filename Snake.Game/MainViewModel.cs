@@ -1,4 +1,5 @@
 ﻿using Snake.Contract;
+using Snake.Contract.Enums;
 using Snake.Contract.Models;
 using Snake.Game.ExtensionMethods;
 using Snake.Game.Helpers;
@@ -22,6 +23,7 @@ namespace Snake.Game
         private ICollisionDetector _collisionDetector;
         private IFoodCreator _foodCreator;
         private IImageDownloader _imageDownloader;
+        private IDirectionChangeDetector _directionChangeDetector;
 
         private Mutex _imageDownloadMutex = new Mutex();
 
@@ -29,6 +31,7 @@ namespace Snake.Game
         private IEnumerable<SnakePart> _snakeForDomain;
         private ObservableCollection<FoodShape> _foodList = new ObservableCollection<FoodShape>();
 
+        //set priority to Render to call DispatcherTimer event every render event - so it is updated often enough
         private DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Render, Application.Current.Dispatcher);
 
         private Key _up;
@@ -37,8 +40,7 @@ namespace Snake.Game
         private Key _right;
 
         private Dictionary<Key, SnakeDirection> _allowedMovementKeysMap;
-        private Dictionary<SnakeDirection, SnakeDirection> _oppositeDirections;
-
+        
         private int _objectSizeX;
         private int _objectSizeY;
         private int _maxXLogicalPosition;
@@ -52,7 +54,8 @@ namespace Snake.Game
             IGameConfigurationProvider gameConfigurationProvider,
             ICollisionDetector collisionDetector,
             IFoodCreator foodCreator,
-            IImageDownloader imageDownloader
+            IImageDownloader imageDownloader,
+            IDirectionChangeDetector directionChangeDetector
             )
         {
             _keyboardConfigurationProvider = keyboardConfigurationProvider;
@@ -60,6 +63,7 @@ namespace Snake.Game
             _collisionDetector = collisionDetector;
             _foodCreator = foodCreator;
             _imageDownloader = imageDownloader;
+            _directionChangeDetector = directionChangeDetector;
 
             _up = _keyboardConfigurationProvider.Up;
             _down = _keyboardConfigurationProvider.Down;
@@ -72,14 +76,6 @@ namespace Snake.Game
                 {_down, SnakeDirection.Down },
                 {_left, SnakeDirection.Left },
                 {_right, SnakeDirection.Right }
-            };
-
-            _oppositeDirections = new Dictionary<SnakeDirection, SnakeDirection>()
-            {
-                {SnakeDirection.Up, SnakeDirection.Down },
-                {SnakeDirection.Down, SnakeDirection.Up },
-                {SnakeDirection.Left, SnakeDirection.Right },
-                {SnakeDirection.Right, SnakeDirection.Left }
             };
 
             OnKeyDownCommand = new RelayCommandGeneric<Key>(p => OnKeyDown(p), p => true);
@@ -257,14 +253,12 @@ namespace Snake.Game
 
         private void OnKeyDown(Key pressedKey)
         {
+            // to do serwisu!!!!
             if (_allowedMovementKeysMap.ContainsKey(pressedKey))
             {
                 var newDirection = _allowedMovementKeysMap[pressedKey];
-                if (_oppositeDirections[GameState.SnakeDirection] != newDirection)
-                {
-                    //GameState.SnakeDirection = newDirection;
-                    _directions.Add(newDirection);
-                }
+                _directions.Add(_directionChangeDetector.GetNewDirectionIfChanged(GameState.SnakeDirection, newDirection));
+                
             } else if (pressedKey.Equals(Key.Enter))
             {
                 IsGameStarted = true;

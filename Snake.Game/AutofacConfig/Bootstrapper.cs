@@ -22,6 +22,7 @@ namespace Snake.Game.AutofacConfig
             builder.RegisterType<CollisionDetector>().As<ICollisionDetector>();
             builder.RegisterType<FoodCreator>().As<IFoodCreator>();
             builder.RegisterType<ImageDownloader>().As<IImageDownloader>();
+            builder.RegisterType<DirectionChangeDetector>().As<IDirectionChangeDetector>();
 
             // infrastructure
             builder.RegisterModule(new InfrastructureModule());
