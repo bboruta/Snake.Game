@@ -10,7 +10,7 @@
         xmlns:shapes="clr-namespace:Snake.Game.Shapes"
         xmlns:controls="System.Windows.Controls"
         mc:Ignorable="d"
-        Title="MainWindow" Height="480" Width="800">
+        Title="Snake" Height="480" Width="800">
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="VisibleIfTrueConverter" />

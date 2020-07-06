@@ -248,7 +248,6 @@ namespace Snake.Game
         {
             IsGameOverMessageDisplayed = true;
             IsGameStarted = false;
-            //StartGame();
         }
 
         private void SpawnFood()
